@@ -7,6 +7,8 @@ import androidx.core.content.ContextCompat;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -28,18 +30,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         int a = 0;
         setContentView(R.layout.activity_main);
-        
-        showPic();
+        Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.people_1);
+        showPic(bmp);
         JSONObject postData = new JSONObject();
         try {
             postData.put("name", "cys");
-            new SendToServer().execute("http://121.37.175.1:8080/card_v0/", postData.toString());
+            new SendToServer().execute(bmp);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
     
-    protected void showPic(){
+    protected void showPic(Bitmap bmp){
         Dialog builder = new Dialog(this);
         builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
         builder.getWindow().setBackgroundDrawable(
@@ -53,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView imageView = new ImageView(this);
         //imageView.setImageURI(imageUri);
-        imageView.setImageResource(R.drawable.people_1);
+        imageView.setImageBitmap(bmp);
+        //imageView.setImageResource(R.drawable.people_1);
         builder.addContentView(imageView, new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
