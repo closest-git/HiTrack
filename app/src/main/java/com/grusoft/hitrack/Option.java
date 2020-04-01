@@ -1,4 +1,4 @@
-package com.otaliastudios.cameraview.demo;
+package com.grusoft.hitrack;
 
 import android.graphics.Color;
 import androidx.annotation.NonNull;

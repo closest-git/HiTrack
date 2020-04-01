@@ -1,4 +1,4 @@
-package com.otaliastudios.cameraview.demo;
+package com.grusoft.hitrack;
 
 import android.animation.ValueAnimator;
 import android.content.Intent;

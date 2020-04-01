@@ -1,4 +1,4 @@
-package com.otaliastudios.cameraview.demo;
+package com.grusoft.hitrack;
 
 import android.app.Activity;
 import android.content.Context;
