@@ -22,7 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SendToServer.AsyncResponse {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -31,11 +31,11 @@ public class MainActivity extends AppCompatActivity {
         int a = 0;
         setContentView(R.layout.activity_main);
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.people_1);
-        showPic(bmp);
-        JSONObject postData = new JSONObject();
+
         try {
+            JSONObject postData = new JSONObject();
             postData.put("name", "cys");
-            new SendToServer().execute(bmp);
+            new SendToServer(this).execute(bmp);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -63,5 +63,8 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-
+    @Override
+    public void processFinish(Bitmap output) {
+        showPic(output);
+    }
 }

@@ -3,7 +3,13 @@ package com.grusoft.hitrack;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.util.Base64;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -12,13 +18,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 /***
  * https://stackoverflow.com/questions/35390928/how-to-send-json-object-to-the-server-from-my-android-app
+ * https://stuff.mit.edu/afs/sipb/project/android/docs/training/displaying-bitmaps/process-bitmap.html#async-task
  */
-public class SendToServer extends AsyncTask<Bitmap, Void, String> {
+public class SendToServer extends AsyncTask<Bitmap, Void, Bitmap> {
+    public interface AsyncResponse {    //https://stackoverflow.com/questions/12575068/how-to-get-the-result-of-onpostexecute-to-main-activity-because-asynctask-is-a
+        void processFinish(Bitmap output);
+    }
+    public AsyncResponse delegate = null;
+
+    public SendToServer(AsyncResponse delegate){
+        this.delegate = delegate;
+    }
+
     protected String core_0(String... params) {
         String data = "";
         HttpURLConnection conn = null;
@@ -61,17 +78,21 @@ public class SendToServer extends AsyncTask<Bitmap, Void, String> {
         https://blog.csdn.net/zhangcongyi420/article/details/90247271
      */
 
-    protected String core_1(Bitmap bmp,String... params) {
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    protected Bitmap core_1(Bitmap bmp, String... params) {
         String url = params[0];
+        //return bmp;
+
         try {
             //byte[] bytes1 = FileUtil.readFileByBytes("D:\\pic\\22.jpg");
             ByteArrayOutputStream baos0 = new ByteArrayOutputStream();
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos0);
             byte[] imageBytes0 = baos0.toByteArray();
-            String image1 = Base64Util.encode(imageBytes0);
+            //String image1 = Base64Util.encode(imageBytes0);
+            String image1 = Base64.encodeToString(imageBytes0, Base64.DEFAULT);
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("image_64", image1);
-            map.put("uuid", "314160");
+            map.put("uuid", "314161");
             map.put("user_id", "user1");
             map.put("user_info", "abc");
             map.put("liveness_control", "NORMAL");
@@ -82,28 +103,34 @@ public class SendToServer extends AsyncTask<Bitmap, Void, String> {
             String param = GsonUtils.toJson(map);
             // 客户端可自行缓存，过期后重新获取。
             String result = HttpUtil.post(url, "accessToken", "application/json", param);
-            System.out.println(result);
-            return result;
+            JSONObject jobj = new JSONObject(result);
+            String result_64 = jobj.getString("result_64");
+            jobj.put("result_64","");
+            System.out.println(jobj);
+            byte[] imageBytes = Base64.decode(result_64, Base64.DEFAULT);
+            Bitmap bmp_1=BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
+            //String text = new String(data, StandardCharsets.UTF_8);
+            return bmp_1;
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();        return null;
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            return "";
+            e.printStackTrace();        return null;
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
-    protected String doInBackground(Bitmap... bmps) {
+    protected Bitmap doInBackground(Bitmap... bmps) {
         //String result = core_0(params);
         //Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.people_1);
-        String result = core_1(bmps[0],"http://121.37.175.1:8080/card_v0/");
+        Bitmap result = core_1(bmps[0],"http://121.37.175.1:8080/card_v0/");
         return result;
     }
 
     @Override
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
-        Log.e("TAG", result); // this is expecting a response code to be sent from your server upon receiving the POST data
+        delegate.processFinish(result);
+        Log.e("TAG", "result"); // this is expecting a response code to be sent from your server upon receiving the POST data
     }
 }
