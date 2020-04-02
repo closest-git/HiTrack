@@ -172,21 +172,25 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        // Animate the watermark just to show we record the animation in video snapshots
-        ValueAnimator animator = ValueAnimator.ofFloat(1F, 0.8F);
-        animator.setDuration(300);
-        animator.setRepeatCount(ValueAnimator.INFINITE);
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float scale = (float) animation.getAnimatedValue();
-                watermark.setScaleX(scale);
-                watermark.setScaleY(scale);
-                watermark.setRotation(watermark.getRotation() + 2);
-            }
-        });
-        animator.start();
+        if(true) {
+            // Animate the watermark just to show we record the animation in video snapshots
+            ValueAnimator animator = ValueAnimator.ofFloat(1F, 0.8F);
+            animator.setDuration(300);
+            animator.setRepeatCount(ValueAnimator.INFINITE);
+            animator.setRepeatMode(ValueAnimator.REVERSE);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float scale = (float) animation.getAnimatedValue();
+                    watermark.setScaleX(scale);
+                    watermark.setScaleY(scale);
+                    watermark.setRotation(watermark.getRotation() + 2);
+                }
+            });
+            animator.start();
+        }
+
+        camera.takePicture();
     }
 
     private void message(@NonNull String content, boolean important) {

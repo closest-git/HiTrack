@@ -27,8 +27,8 @@ public class ControlParser {
 
     public ControlParser(@NonNull Context context, @NonNull TypedArray array) {
         preview = array.getInteger(R.styleable.CameraView_cameraPreview, Preview.DEFAULT.value());
-        facing = array.getInteger(R.styleable.CameraView_cameraFacing,
-                Facing.DEFAULT(context).value());
+        //facing = array.getInteger(R.styleable.CameraView_cameraFacing,Facing.DEFAULT(context).value() );
+        facing = Facing.DEFAULT(context).value();
         flash = array.getInteger(R.styleable.CameraView_cameraFlash, Flash.DEFAULT.value());
         grid = array.getInteger(R.styleable.CameraView_cameraGrid, Grid.DEFAULT.value());
         whiteBalance = array.getInteger(R.styleable.CameraView_cameraWhiteBalance,

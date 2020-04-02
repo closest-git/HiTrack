@@ -21,12 +21,15 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /***
  * https://stackoverflow.com/questions/35390928/how-to-send-json-object-to-the-server-from-my-android-app
  * https://stuff.mit.edu/afs/sipb/project/android/docs/training/displaying-bitmaps/process-bitmap.html#async-task
  */
 public class SendToServer extends AsyncTask<Bitmap, Void, Bitmap> {
+    private static Gson gson = new GsonBuilder().create();
     public interface AsyncResponse {    //https://stackoverflow.com/questions/12575068/how-to-get-the-result-of-onpostexecute-to-main-activity-because-asynctask-is-a
         void processFinish(Bitmap output);
     }
@@ -100,14 +103,16 @@ public class SendToServer extends AsyncTask<Bitmap, Void, Bitmap> {
             map.put("image_type", "BASE64");
             map.put("quality_control", "LOW");
 
-            String param = GsonUtils.toJson(map);
+            //String param = GsonUtils.toJson(map);
+            String param = gson.toJson(map);
             // 客户端可自行缓存，过期后重新获取。
             String result = HttpUtil.post(url, "accessToken", "application/json", param);
             JSONObject jobj = new JSONObject(result);
             String result_64 = jobj.getString("result_64");
             jobj.put("result_64","");
             System.out.println(jobj);
-            byte[] imageBytes = Base64.decode(result_64, Base64.DEFAULT);
+            byte[] imageBytes = Base64.decode(result_64, Base64.DEFAULT);   //https://stackoverflow.com/questions/7360403/base-64-encode-and-decode-example-code
+            //https://stackoverflow.com/questions/38639436/how-to-convert-bytebuffer-into-image-in-android
             Bitmap bmp_1=BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
             //String text = new String(data, StandardCharsets.UTF_8);
             return bmp_1;
@@ -134,3 +139,23 @@ public class SendToServer extends AsyncTask<Bitmap, Void, Bitmap> {
         Log.e("TAG", "result"); // this is expecting a response code to be sent from your server upon receiving the POST data
     }
 }
+
+/**
+ * Json工具类.
+
+ public class GsonUtils {
+ private static Gson gson = new GsonBuilder().create();
+
+ public static String toJson(Object value) {
+ return gson.toJson(value);
+ }
+
+ public static <T> T fromJson(String json, Class<T> classOfT) throws JsonParseException {
+ return gson.fromJson(json, classOfT);
+ }
+
+ public static <T> T fromJson(String json, Type typeOfT) throws JsonParseException {
+ return (T) gson.fromJson(json, typeOfT);
+ }
+ }
+ */

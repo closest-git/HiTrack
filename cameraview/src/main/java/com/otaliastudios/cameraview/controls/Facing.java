@@ -30,10 +30,10 @@ public enum Facing implements Control {
     static Facing DEFAULT(@Nullable Context context) {
         if (context == null) {
             return BACK;
-        } else if (CameraUtils.hasCameraFacing(context, BACK)) {
-            return BACK;
-        } else if (CameraUtils.hasCameraFacing(context, FRONT)) {
+        }  else if (CameraUtils.hasCameraFacing(context, FRONT)) {
             return FRONT;
+        }else if (CameraUtils.hasCameraFacing(context, BACK)) {
+            return BACK;
         } else {
             // The controller will throw a CameraException.
             // This device has no cameras.
