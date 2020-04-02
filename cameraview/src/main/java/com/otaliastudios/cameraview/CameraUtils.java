@@ -269,7 +269,7 @@ public class CameraUtils {
     // Ignores flipping, but it should be super rare.
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Nullable
-    private static Bitmap decodeBitmap(@NonNull byte[] source,
+    public static Bitmap decodeBitmap(@NonNull byte[] source,
                                        int maxWidth,
                                        int maxHeight,
                                        @NonNull BitmapFactory.Options options,

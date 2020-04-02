@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,10 +31,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 
-public class PicturePreviewActivity extends AppCompatActivity {
+public class PicturePreviewActivity extends AppCompatActivity implements SendToServer.AsyncResponse {
 
     private static PictureResult picture;
-
     public static void setPictureResult(@Nullable PictureResult pictureResult) {
         picture = pictureResult;
     }
@@ -53,22 +53,33 @@ public class PicturePreviewActivity extends AppCompatActivity {
         final MessageView captureLatency = findViewById(R.id.captureLatency);
         final MessageView exifRotation = findViewById(R.id.exifRotation);
 
+
         final long delay = getIntent().getLongExtra("delay", 0);
         AspectRatio ratio = AspectRatio.of(result.getSize());
         captureLatency.setTitleAndMessage("Approx. latency", delay + " milliseconds");
         captureResolution.setTitleAndMessage("Resolution", result.getSize() + " (" + ratio + ")");
         exifRotation.setTitleAndMessage("EXIF rotation", result.getRotation() + "");
-        try {
-            result.toBitmap(1000, 1000, new BitmapCallback() {
-                @Override
-                public void onBitmapReady(Bitmap bitmap) {
-                    imageView.setImageBitmap(bitmap);
-                }
-            });
-        } catch (UnsupportedOperationException e) {
-            imageView.setImageDrawable(new ColorDrawable(Color.GREEN));
-            Toast.makeText(this, "Can't preview this format: " + picture.getFormat(),
-                    Toast.LENGTH_LONG).show();
+        if(false) { //吃力不讨好
+            try {
+                result.toBitmap(1000, 1000, new BitmapCallback() {
+                    @Override
+                    public void onBitmapReady(Bitmap bitmap) {
+                        imageView.setImageBitmap(bitmap);
+                    }
+                });
+            } catch (UnsupportedOperationException e) {
+                imageView.setImageDrawable(new ColorDrawable(Color.GREEN));
+                Toast.makeText(this, "Can't preview this format: " + picture.getFormat(),
+                        Toast.LENGTH_LONG).show();
+            }
+        }else{
+            int maxWidth=1000, maxHeight=1000;
+            int rotation = result.getRotation();
+            final Bitmap bitmap = CameraUtils.decodeBitmap(result.getData(), maxWidth, maxHeight, new BitmapFactory.Options(), rotation);
+            //Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+            if(bitmap!=null){
+                new SendToServer(this).execute(bitmap);
+            }
         }
 
         if (result.isSnapshot()) {
@@ -132,5 +143,11 @@ public class PicturePreviewActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void processFinish(Bitmap output) {
+        final ImageView imageView = findViewById(R.id.image);
+        imageView.setImageBitmap(output);
     }
 }
